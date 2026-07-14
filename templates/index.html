@@ -10,8 +10,23 @@
             padding: 20px;
             background-color: #f4f4f4;
         }
-        h1 {
-            color: #333;
+        h1 { color: #333; }
+        .instructions {
+            background-color: #e8f4fd;
+            border-left: 4px solid #2c7be5;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+        }
+        .instructions h2 {
+            margin-top: 0;
+            color: #2c7be5;
+            font-size: 16px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 6px;
         }
         textarea {
             width: 100%;
@@ -20,6 +35,13 @@
             border-radius: 5px;
             border: 1px solid #ccc;
             font-family: Arial, sans-serif;
+            box-sizing: border-box;
+        }
+        .divider {
+            text-align: center;
+            color: #888;
+            margin: 8px 0 12px 0;
+            font-size: 14px;
         }
         button {
             background-color: #2c7be5;
@@ -30,8 +52,13 @@
             cursor: pointer;
             font-size: 16px;
         }
-        button:hover {
-            background-color: #1a5fc1;
+        .error {
+            background-color: #fde8e8;
+            border-left: 4px solid #e53e3e;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-top: 20px;
+            color: #c53030;
         }
         .result {
             background-color: white;
@@ -44,15 +71,37 @@
 </head>
 <body>
     <h1>Job Application Assistant</h1>
-    <form method="POST">
+
+    <div class="instructions">
+        <h2>How to use this tool</h2>
+        <ul>
+            <li>Paste the full job description in the first box</li>
+            <li>Upload your resume as a PDF, Word doc, or .txt file — or paste it as text below</li>
+            <li>Click <strong>Analyze</strong> and wait a few seconds</li>
+            <li>You will get a match score, missing keywords, resume suggestions, and interview questions</li>
+        </ul>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
         <label>Job Description:</label>
-        <textarea name="job_description" rows="8" required></textarea>
+        <textarea name="job_description" rows="8" placeholder="Paste the job description here..." required></textarea>
 
         <label>Your Resume:</label>
-        <textarea name="resume" rows="8" required></textarea>
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: normal;">Upload file (PDF, Word, or .txt):</label>
+            <input type="file" name="resume_file" accept=".pdf,.docx,.txt">
+        </div>
+
+        <div class="divider">— or paste your resume below —</div>
+
+        <textarea name="resume" rows="8" placeholder="Paste your resume text here..."></textarea>
 
         <button type="submit">Analyze</button>
     </form>
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
 
     {% if result %}
     <div class="result">
