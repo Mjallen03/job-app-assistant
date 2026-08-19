@@ -90,7 +90,7 @@ Format your response clearly with headers for each section."""
 
             message = client.messages.create(
                 model="claude-sonnet-4-6",
-                max_tokens=1000,
+                max_tokens=2048,
                 messages=[{"role": "user", "content": prompt}]
             )
             result = message.content[0].text
