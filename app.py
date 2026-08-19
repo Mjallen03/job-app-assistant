@@ -3,8 +3,9 @@ from anthropic import Anthropic
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 import os
+import io
 import tempfile
-import pdfplumber
+import PyPDF2
 import docx
 
 load_dotenv()
@@ -21,12 +22,10 @@ def extract_text_from_file(file):
 
     try:
         if filename.endswith('.pdf'):
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp:
-                tmp.write(file_bytes)
-                tmp_path = tmp.name
-            with pdfplumber.open(tmp_path) as pdf:
-                text = "".join(page.extract_text() or "" for page in pdf.pages)
-            os.unlink(tmp_path)
+            reader = PyPDF2.PdfReader(io.BytesIO(file_bytes))
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text() or ""
             print(f"DEBUG: PDF text length={len(text)}")
             return text if text.strip() else None
 
