@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 import os
 import io
+import json
 import tempfile
 import PyPDF2
 import docx
@@ -79,20 +80,41 @@ JOB DESCRIPTION:
 RESUME:
 {resume_text}
 
-Provide:
-1. A match score out of 100
-2. Top 5 keywords from the job description missing from the resume
-3. 3 specific resume bullet point suggestions to better align with this job
-4. 3 likely interview questions based on this job description
-
-Format your response clearly with headers for each section."""
+Return your response as JSON only, no other text, in this exact format:
+{{
+    "match_score": <number 0-100>,
+    "match_rationale": "<one sentence explaining the score>",
+    "missing_keywords": [
+        "<keyword 1>",
+        "<keyword 2>",
+        "<keyword 3>",
+        "<keyword 4>",
+        "<keyword 5>"
+    ],
+    "bullet_suggestions": [
+        "<rewritten bullet point 1>",
+        "<rewritten bullet point 2>",
+        "<rewritten bullet point 3>"
+    ],
+    "interview_questions": [
+        "<question 1>",
+        "<question 2>",
+        "<question 3>"
+    ]
+}}"""
 
             message = client.messages.create(
                 model="claude-sonnet-4-6",
                 max_tokens=2048,
                 messages=[{"role": "user", "content": prompt}]
             )
-            result = message.content[0].text
+
+            raw = message.content[0].text.strip()
+            raw = raw.replace("```json", "").replace("```", "").strip()
+            try:
+                result = json.loads(raw)
+            except json.JSONDecodeError:
+                result = {"error": raw}
 
     return render_template("index.html", result=result, error=error)
 
